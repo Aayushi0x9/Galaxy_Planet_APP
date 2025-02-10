@@ -20,12 +20,12 @@ class _SplashScreenState extends State<SplashScreen> {
       Get.off(() => const HomeScreen());
     });
 
-    return const Scaffold(
-      body: Center(
-        child: Text(
-          'Galaxy Planets',
-          style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-        ),
+    return Scaffold(
+      body: Image.asset(
+        'assets/images/splash.png',
+        fit: BoxFit.cover,
+        height: double.infinity,
+        width: double.infinity,
       ),
     );
   }

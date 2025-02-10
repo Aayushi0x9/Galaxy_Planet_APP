@@ -12,8 +12,9 @@ class DetailScreen extends StatefulWidget {
 }
 
 class _DetailScreenState extends State<DetailScreen>
-    with SingleTickerProviderStateMixin {
-  AnimationController? controller;
+    with TickerProviderStateMixin {
+  AnimationController? controllerP;
+  AnimationController? controllerD;
   Animation<Offset>? slideAnimation;
   late LiquidController liquidController;
 
@@ -22,19 +23,31 @@ class _DetailScreenState extends State<DetailScreen>
   @override
   void initState() {
     super.initState();
-    controller = AnimationController(
+    controllerP = AnimationController(
+      vsync: this,
+      duration: const Duration(minutes: 1),
+    );
+    controllerD = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 1),
     );
-    controller!.forward();
+    // controller!.forward();
     liquidController = LiquidController();
-
+    controllerD!.forward();
+    controllerP!.repeat();
     slideAnimation = Tween<Offset>(
       begin: const Offset(1.0, 0.0),
       end: Offset.zero,
     ).animate(
-      CurvedAnimation(parent: controller!, curve: Curves.easeInOut),
+      CurvedAnimation(parent: controllerD!, curve: Curves.easeInOut),
     );
+  }
+
+  @override
+  void dispose() {
+    controllerP?.dispose();
+    controllerD?.dispose();
+    super.dispose();
   }
 
   @override
@@ -89,11 +102,11 @@ class _DetailScreenState extends State<DetailScreen>
               alignment: Alignment.bottomRight,
               children: [
                 AnimatedBuilder(
-                  animation: controller!,
+                  animation: controllerP!,
                   builder: (context, child) {
                     return AnimatedRotation(
                       duration: Duration.zero,
-                      turns: controller!.value,
+                      turns: controllerP!.value,
                       child: Hero(
                         tag: 'a1_$index',
                         child: Image.network(

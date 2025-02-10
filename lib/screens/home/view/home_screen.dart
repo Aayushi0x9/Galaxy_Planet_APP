@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:galaxy_planets/controller/planet_controller.dart';
+import 'package:galaxy_planets/controller/theme_controller.dart';
 import 'package:galaxy_planets/screens/favourite/view/favourite_screen.dart';
 import 'package:galaxy_planets/utils/routes/app_routes.dart';
 import 'package:get/get.dart';
@@ -13,27 +14,60 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   PlanetController planetController = Get.put(PlanetController());
-
+  ThemeController themeController = Get.find<ThemeController>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF2E3B55),
         elevation: 8,
-        title: Text('Galaxy Planets'),
+        title: const Text('Galaxy Planets'),
         actions: [
           IconButton(
-            icon: Icon(Icons.favorite),
-            onPressed: () => Get.to(() => FavouriteScreen()),
+            icon: const Icon(Icons.favorite),
+            onPressed: () => Get.to(() => const FavouriteScreen()),
           ),
-          SizedBox(
+          const SizedBox(
             width: 20,
           )
         ],
       ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Text(
+                'Galaxy Planets',
+                style: TextStyle(fontSize: 24),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.brightness_6),
+              title: const Text('Change Theme'),
+              subtitle: Obx(() {
+                switch (themeController.themeMode.value) {
+                  case ThemeMode.light:
+                    return const Text('Current: Light Theme');
+                  case ThemeMode.dark:
+                    return const Text('Current: Dark Theme');
+                  default:
+                    return const Text('Current: System Theme');
+                }
+              }),
+              onTap: () {
+                _showThemeDialog(context);
+              },
+            ),
+          ],
+        ),
+      ),
       body: Obx(() {
         if (planetController.planets.isEmpty) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
         return Padding(
           padding: const EdgeInsets.only(top: 20, right: 16),
@@ -44,8 +78,8 @@ class _HomeScreenState extends State<HomeScreen> {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: ExpansionTile(
-                  tilePadding: EdgeInsets.symmetric(vertical: 20),
-                  childrenPadding: EdgeInsets.symmetric(
+                  tilePadding: const EdgeInsets.symmetric(vertical: 20),
+                  childrenPadding: const EdgeInsets.symmetric(
                     horizontal: 20,
                   ),
                   leading: InkWell(
@@ -53,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Get.toNamed(AppRoutes.detail, arguments: index);
                     },
                     child: Hero(
-                      tag: 'a1',
+                      tag: 'a1_$index',
                       child: CircleAvatar(
                           radius: 50,
                           backgroundColor: Colors.transparent,
@@ -68,10 +102,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           planetController.favorites.contains(planet['name'])
                               ? Icons.favorite
                               : Icons.favorite_border,
-                          color: planetController.favorites
-                                  .contains(planet['name'])
-                              ? Colors.red
-                              : Colors.white,
+                          // color: planetController.favorites
+                          //         .contains(planet['name'])
+                          //     ? Colors.red
+                          //     : Colors.white,
                         ),
                         onPressed: () =>
                             planetController.toggleFavorite(planet['name']),
@@ -89,6 +123,55 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         );
       }),
+    );
+  }
+
+  void _showThemeDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Choose Theme'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              RadioListTile<ThemeMode>(
+                title: const Text('Light Theme'),
+                value: ThemeMode.light,
+                groupValue: themeController.themeMode.value,
+                onChanged: (value) {
+                  if (value != null) {
+                    themeController.setTheme(value);
+                    Get.back();
+                  }
+                },
+              ),
+              RadioListTile<ThemeMode>(
+                title: const Text('Dark Theme'),
+                value: ThemeMode.dark,
+                groupValue: themeController.themeMode.value,
+                onChanged: (value) {
+                  if (value != null) {
+                    themeController.setTheme(value);
+                    Get.back();
+                  }
+                },
+              ),
+              RadioListTile<ThemeMode>(
+                title: const Text('System Theme'),
+                value: ThemeMode.system,
+                groupValue: themeController.themeMode.value,
+                onChanged: (value) {
+                  if (value != null) {
+                    themeController.setTheme(value);
+                    Get.back();
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
